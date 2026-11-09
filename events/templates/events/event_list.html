@@ -1,0 +1,134 @@
+{% extends 'events/base.html' %}
+
+{% block title %}Главная — Афиша мероприятий{% endblock %}
+
+{% block content %}
+<div class="row mb-4 align-items-center">
+    <div class="col-md-7">
+        <h1 class="h3 fw-bold mb-1">Предстоящие события</h1>
+        <p class="text-muted mb-0">Откройте для себя лекции, выставки, концерты и турниры в городе</p>
+    </div>
+    <div class="col-md-5 text-md-end mt-3 mt-md-0">
+        <a href="{% url 'events:event_add' %}" class="btn btn-primary-custom px-4 py-2 rounded-pill shadow-sm">
+            <i class="bi bi-plus-lg me-1"></i> Добавить мероприятие
+        </a>
+    </div>
+</div>
+
+<!-- Блок фильтрации и поиска -->
+<div class="card filter-card p-4 mb-4">
+    <form method="get" action="{% url 'events:event_list' %}" class="row g-3 align-items-end">
+        <div class="col-md-4">
+            <label for="id_q" class="form-label small fw-semibold text-secondary">Поиск по названию</label>
+            <div class="input-group">
+                <span class="input-group-text bg-white text-muted border-end-0"><i class="bi bi-search"></i></span>
+                <input type="text" name="q" id="id_q" class="form-control border-start-0" 
+                       placeholder="Например, Python, джаз..." value="{{ selected_query }}">
+            </div>
+        </div>
+        <div class="col-md-3">
+            <label for="id_category" class="form-label small fw-semibold text-secondary">Категория</label>
+            <select name="category" id="id_category" class="form-select">
+                <option value="">Все категории</option>
+                {% for cat in categories %}
+                    <option value="{{ cat.id }}" {% if selected_category == cat.id|stringformat:"s" %}selected{% endif %}>
+                        {{ cat.name }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-2">
+            <div class="form-check pt-2">
+                <input class="form-check-input" type="checkbox" name="only_free" value="1" id="id_only_free" {% if only_free == '1' %}checked{% endif %}>
+                <label class="form-check-label small fw-semibold text-secondary" for="id_only_free">
+                    Только бесплатные
+                </label>
+            </div>
+        </div>
+        <div class="col-md-3 d-flex gap-2">
+            <button type="submit" class="btn btn-primary-custom flex-grow-1">
+                <i class="bi bi-funnel-fill me-1"></i> Найти
+            </button>
+            {% if is_filtered %}
+                <a href="{% url 'events:event_list' %}" class="btn btn-outline-secondary">
+                    Сбросить
+                </a>
+            {% endif %}
+        </div>
+    </form>
+</div>
+
+<!-- Список мероприятий -->
+{% if events %}
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+        {% for event in events %}
+            <div class="col">
+                <div class="card card-event h-100 p-3 bg-white">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <span class="badge badge-category">{{ event.category.name }}</span>
+                        {% if event.is_finished %}
+                            <span class="badge badge-finished">Завершено</span>
+                        {% elif event.is_free %}
+                            <span class="badge badge-free">Бесплатно</span>
+                        {% else %}
+                            <span class="badge badge-price">{{ event.price }} ₽</span>
+                        {% endif %}
+                    </div>
+
+                    <h5 class="card-title fw-bold mt-2 mb-2 text-dark">{{ event.title }}</h5>
+                    
+                    <p class="card-text text-secondary small flex-grow-1">
+                        {{ event.description|truncatewords:20 }}
+                    </p>
+
+                    <div class="border-top pt-3 mt-2 text-muted small">
+                        <div class="mb-1 d-flex align-items-center gap-2">
+                            <i class="bi bi-calendar3 text-primary"></i>
+                            <span>{{ event.event_date|date:"d E Y, H:i" }}</span>
+                        </div>
+                        <div class="mb-3 d-flex align-items-center gap-2">
+                            <i class="bi bi-geo-alt text-danger"></i>
+                            <span class="text-truncate">{{ event.location }}</span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="fw-semibold">
+                                {% if event.is_free %}
+                                    <span class="text-success">Бесплатно</span>
+                                {% else %}
+                                    <span class="text-dark">{{ event.price }} ₽</span>
+                                {% endif %}
+                            </span>
+                            <a href="{% url 'events:event_detail' event.pk %}" class="btn btn-sm btn-outline-primary rounded-pill px-3">
+                                Подробнее &rarr;
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <div class="card text-center p-5 border-0 shadow-sm rounded-4 bg-white my-4">
+        <div class="mb-3">
+            <i class="bi bi-calendar-x display-3 text-muted"></i>
+        </div>
+        {% if is_filtered %}
+            <h4 class="fw-bold text-dark">По вашему запросу ничего не найдено</h4>
+            <p class="text-muted">Попробуйте изменить параметры поиска или фильтрации по категории.</p>
+            <div>
+                <a href="{% url 'events:event_list' %}" class="btn btn-outline-secondary rounded-pill px-4">
+                    Сбросить фильтры
+                </a>
+            </div>
+        {% else %}
+            <h4 class="fw-bold text-dark">Мероприятий пока нет</h4>
+            <p class="text-muted">Станьте первым, кто добавит новое интересное событие в афишу!</p>
+            <div>
+                <a href="{% url 'events:event_add' %}" class="btn btn-primary-custom rounded-pill px-4">
+                    <i class="bi bi-plus-lg me-1"></i> Добавить мероприятие
+                </a>
+            </div>
+        {% endif %}
+    </div>
+{% endif %}
+{% endblock %}

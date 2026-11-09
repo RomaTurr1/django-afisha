@@ -1,0 +1,32 @@
+{% extends 'events/base.html' %}
+
+{% block title %}Удаление мероприятия — {{ event.title }}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card border-0 shadow-sm rounded-4 p-4 p-md-5 bg-white text-center">
+            <div class="text-danger mb-3">
+                <i class="bi bi-exclamation-triangle-fill display-4"></i>
+            </div>
+            <h3 class="fw-bold mb-3">Удалить мероприятие?</h3>
+            <p class="text-muted mb-4">
+                Вы действительно хотите удалить мероприятие <strong>«{{ event.title }}»</strong>?<br>
+                Это действие нельзя будет отменить.
+            </p>
+
+            <form method="post">
+                {% csrf_token %}
+                <div class="d-flex justify-content-center gap-2">
+                    <a href="{% url 'events:event_detail' event.pk %}" class="btn btn-outline-secondary rounded-pill px-4">
+                        Отмена
+                    </a>
+                    <button type="submit" class="btn btn-danger rounded-pill px-4">
+                        <i class="bi bi-trash me-1"></i> Да, удалить
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
