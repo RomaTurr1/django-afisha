@@ -58,8 +58,8 @@
 
 ### 1. Клонирование репозитория
 ```bash
-git clone <URL_РЕПОЗИТОРИЯ>
-cd AfishaPractice
+git clone https://github.com/RomaTurr1/django-afisha.git
+cd django-afisha
 ```
 
 ### 2. Создание и активация виртуального окружения
